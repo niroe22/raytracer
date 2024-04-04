@@ -186,8 +186,9 @@ CMakeFiles/raytracer.dir/raytracer.cc.o: \
  /usr/include/c++/11/bits/stl_uninitialized.h \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
- /usr/include/c++/11/bits/vector.tcc /usr/include/c++/11/algorithm \
- /usr/include/c++/11/bits/ranges_algo.h \
+ /usr/include/c++/11/bits/vector.tcc \
+ /home/nkls/CompGrafikLabor/Aufgabe2/raytracer/color.h \
+ /usr/include/c++/11/algorithm /usr/include/c++/11/bits/ranges_algo.h \
  /usr/include/c++/11/bits/ranges_algobase.h /usr/include/c++/11/iterator \
  /usr/include/c++/11/bits/stream_iterator.h \
  /usr/include/c++/11/bits/invoke.h /usr/include/c++/11/bits/ranges_util.h \

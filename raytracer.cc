@@ -1,5 +1,6 @@
 #include "math.h"
 #include "geometry.h"
+#include "color.h"
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -64,6 +65,11 @@
 
 // Die rekursive raytracing-Methode. Am besten ab einer bestimmten Rekursionstiefe (z.B. als Parameter übergeben) abbrechen.
 
+template <class FLOAT, size_t N>
+Vector<FLOAT,N> ray_color(const Ray<FLOAT,N>& r){
+    return Vector3df{0,0,0};
+
+}
 
 int main(void) {
     // Bildschirm erstellen
@@ -74,25 +80,35 @@ int main(void) {
     //   Beim Bildschirm die Farbe für Pixel x,y, setzten
 
     //Image
+    float aspect_ratio = 16.0/9.0;
     int image_width = 256;
-    int image_height = 256;
+
+    int image_height = static_cast<int>(image_width / aspect_ratio);
+    image_height = (image_height < 1) ? 1 : image_height;
+
+    float focal_length = 1.0;
+    float viewport_height = 2.0;
+    float viewport_width = viewport_height * (static_cast<double>(image_width)/image_height);
+    auto camera_center = Vector3df {0,0,0};
+
+    auto viewport_u = Vector3df {viewport_width, 0, 0};
+    auto viewport_v = Vector3df {0, -viewport_height, 0};
+
+    auto pixel_delta_u = viewport_u.operator/=(image_width);
+    auto pixel_delta_v = viewport_v.operator/=(image_height);
+
+    auto viewport_upper_left = camera_center.operator-=(Vector3df{0, 0, focal_length})
+                               - viewport_u.operator/=(2) - viewport_v.operator/=(2);
+    auto pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
     //Render
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     for (int j = 0; j < image_height; ++j) {
         std::clog<<"\r Scanline remaining: "<<(image_height - j) << ' ' <<std::flush;
         for (int i = 0; i < image_width; ++i) {
-            auto r = double(i) / (image_width - 1);
-            auto g = double(j) / (image_height - 1);
-            auto b = 0;
-
-            int ir = static_cast<int>(255.999 * r);
-            int ig = static_cast<int>(255.999 * g);
-            int ib = static_cast<int>(255.999 * b);
-
-            std::cout << ir << ' ' << ig << ' ' << ib << '\n';
+            auto pixel_color = Vector3df {float(i)/((float)image_width-1), float(j)/((float)image_height-1), 0};
+            write_color(std::cout, pixel_color);
         }
     }
-
     std::clog <<"\rDone.                \n";
     return 0;
 }
