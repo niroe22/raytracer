@@ -65,9 +65,20 @@
 
 // Die rekursive raytracing-Methode. Am besten ab einer bestimmten Rekursionstiefe (z.B. als Parameter übergeben) abbrechen.
 
-template <class FLOAT, size_t N>
-Vector<FLOAT,N> ray_color(const Ray<FLOAT,N>& r){
-    Vector3df unit_direction = (1.f/r.direction.length()) * r.direction;
+
+template<class FLOAT, size_t N>
+Vector<FLOAT, N> ray_color(const Ray<FLOAT, N> &r) {
+    Sphere3df sphere = {{0.f, 0.f, -1.f}, 0.5f};
+    float t = sphere.intersects(r);
+    if (t > 0.f) {
+        Vector3df vector_temp = r.direction + r.origin;
+        Vector3df vector_n = (vector_temp.operator*=(t) + Vector3df({0.f, 0.f, 1.f}));
+        vector_n *= (1 / vector_n.length());
+        Vector3df color ={vector_n[0] + 1.f, vector_n[1] + 1.f, vector_n[2] + 1.f};
+        return 0.5f * color;
+    }
+
+    Vector3df unit_direction = (1.f / r.direction.length()) * r.direction;
     auto a = 0.5f * (unit_direction[1] + 1.f);
     return (1.f - a) * Vector3df({1.f, 1.f, 1.f}) + a * Vector3df({0.5f, 0.7f, 1.f});
 }
@@ -81,7 +92,7 @@ int main(void) {
     //   Beim Bildschirm die Farbe für Pixel x,y, setzten
 
     //Image
-    float aspect_ratio = 16.0/9.0;
+    float aspect_ratio = 16.0 / 9.0;
     int image_width = 256;
 
     int image_height = static_cast<int>(image_width / aspect_ratio);
@@ -89,14 +100,14 @@ int main(void) {
 
     float focal_length = 1.0;
     float viewport_height = 2.0;
-    float viewport_width = viewport_height * (static_cast<double>(image_width)/image_height);
-    auto camera_center = Vector3df {0,0,0};
+    float viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
+    auto camera_center = Vector3df{0, 0, 0};
 
-    auto viewport_u = Vector3df {viewport_width, 0, 0};
-    auto viewport_v = Vector3df {0, -viewport_height, 0};
+    auto viewport_u = Vector3df{viewport_width, 0, 0};
+    auto viewport_v = Vector3df{0, -viewport_height, 0};
 
-    auto pixel_delta_u =  (1.f/image_width) * viewport_u ;
-    auto pixel_delta_v = (1.f/image_height) * viewport_v;
+    auto pixel_delta_u = (1.f / image_width) * viewport_u;
+    auto pixel_delta_v = (1.f / image_height) * viewport_v;
 
     auto viewport_upper_left = camera_center + (Vector3df{0, 0, -focal_length})
                                - 0.5f * viewport_u - 0.5f * viewport_v;
@@ -104,9 +115,9 @@ int main(void) {
     //Render
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     for (int j = 0; j < image_height; ++j) {
-        std::clog<<"\r Scanline remaining: "<<(image_height - j) << ' ' <<std::flush;
+        std::clog << "\r Scanline remaining: " << (image_height - j) << ' ' << std::flush;
         for (int i = 0; i < image_width; ++i) {
-            auto pixel_center = pixel00_loc + ((float)i * pixel_delta_u) + ((float)j * pixel_delta_v);
+            auto pixel_center = pixel00_loc + ((float) i * pixel_delta_u) + ((float) j * pixel_delta_v);
             auto ray_dircetion = pixel_center + camera_center;
 
             Ray3df r = Ray3df({camera_center, ray_dircetion});
@@ -114,7 +125,7 @@ int main(void) {
             write_color(std::cout, pixel_color);
         }
     }
-    std::clog <<"\rDone.                \n";
+    std::clog << "\rDone.                \n";
     return 0;
 }
 
