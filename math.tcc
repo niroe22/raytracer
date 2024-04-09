@@ -49,7 +49,6 @@ Vector<FLOAT_TYPE, N> & Vector<FLOAT_TYPE, N>::operator/=(const FLOAT_TYPE facto
   return *this;
 }
 
-
 template <class FLOAT_TYPE, size_t N>    
 Vector<FLOAT_TYPE, N> operator*(FLOAT_TYPE scalar, Vector<FLOAT_TYPE, N> value) {
   Vector<FLOAT_TYPE, N> scalar_product = value;

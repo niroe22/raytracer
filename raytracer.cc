@@ -67,8 +67,9 @@
 
 template <class FLOAT, size_t N>
 Vector<FLOAT,N> ray_color(const Ray<FLOAT,N>& r){
-    return Vector3df{0,0,0};
-
+    Vector3df unit_direction = (1.f/r.direction.length()) * r.direction;
+    auto a = 0.5f * (unit_direction[1] + 1.f);
+    return (1.f - a) * Vector3df({1.f, 1.f, 1.f}) + a * Vector3df({0.5f, 0.7f, 1.f});
 }
 
 int main(void) {
@@ -94,18 +95,22 @@ int main(void) {
     auto viewport_u = Vector3df {viewport_width, 0, 0};
     auto viewport_v = Vector3df {0, -viewport_height, 0};
 
-    auto pixel_delta_u = viewport_u.operator/=(image_width);
-    auto pixel_delta_v = viewport_v.operator/=(image_height);
+    auto pixel_delta_u =  (1.f/image_width) * viewport_u ;
+    auto pixel_delta_v = (1.f/image_height) * viewport_v;
 
-    auto viewport_upper_left = camera_center.operator-=(Vector3df{0, 0, focal_length})
-                               - viewport_u.operator/=(2) - viewport_v.operator/=(2);
-    auto pixel00_loc = viewport_upper_left + 0.5 * (pixel_delta_u + pixel_delta_v);
+    auto viewport_upper_left = camera_center + (Vector3df{0, 0, -focal_length})
+                               - 0.5f * viewport_u - 0.5f * viewport_v;
+    auto pixel00_loc = viewport_upper_left + 0.5f * (pixel_delta_u + pixel_delta_v);
     //Render
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     for (int j = 0; j < image_height; ++j) {
         std::clog<<"\r Scanline remaining: "<<(image_height - j) << ' ' <<std::flush;
         for (int i = 0; i < image_width; ++i) {
-            auto pixel_color = Vector3df {float(i)/((float)image_width-1), float(j)/((float)image_height-1), 0};
+            auto pixel_center = pixel00_loc + ((float)i * pixel_delta_u) + ((float)j * pixel_delta_v);
+            auto ray_dircetion = pixel_center + camera_center;
+
+            Ray3df r = Ray3df({camera_center, ray_dircetion});
+            Vector pixel_color = ray_color(r);
             write_color(std::cout, pixel_color);
         }
     }
