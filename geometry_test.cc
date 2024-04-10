@@ -2,10 +2,10 @@
 #include "gtest/gtest.h"
 
 namespace {
-	
+
 TEST(RAY, ListInitialization2df) {
   Ray2df ray = { {0.0, 0.0}, {1.0, 0.0} };
-  
+
   EXPECT_NEAR(0.0, ray.origin[0], 0.00001);
   EXPECT_NEAR(0.0, ray.origin[1], 0.00001);
   EXPECT_NEAR(1.0, ray.direction[0], 0.00001);
@@ -15,14 +15,14 @@ TEST(RAY, ListInitialization2df) {
 TEST(AABB, Intersects2df_1) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   AABB2df box2 = { {0.5, -0.5}, {0.5, 0.5} };
-  
+
   EXPECT_TRUE( box1.intersects(box2) );
 }
 
 TEST(AABB, Intersects2df_2) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   AABB2df box2 = { {2.5, -2.5}, {0.5, 0.5} };
-  
+
   EXPECT_FALSE( box1.intersects(box2) );
 }
 
@@ -36,14 +36,14 @@ TEST(AABB, Intersects2df_3) {
 TEST(AABB, Intersects2dfWithRay_1) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   Ray2df ray = { {0.0, -3.0}, {1.0, 1.0} };
-  
+
   EXPECT_FALSE( box1.intersects(ray) );
 }
 
 TEST(AABB, Intersects2dfWithRay_2) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   Ray2df ray = { {-1.0, -2.0}, {0.5, 0.5} };
-  
+
   EXPECT_TRUE( box1.intersects(ray) );
 }
 
@@ -51,7 +51,7 @@ TEST(AABB, Intersects2dfWithMovingAABB_1) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   AABB2df box2 = { {-2.0, -2.0}, {0.5, .5} };
   Vector2df direction = {1.0, 1.0};
-  
+
   EXPECT_TRUE( box1.intersects(box2, direction) );
 }
 
@@ -59,7 +59,7 @@ TEST(AABB, Intersects2dfWithMovingAABB_2) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   AABB2df box2 = { {-2.0, -2.0}, {0.5, 0.5} };
   Vector2df direction = {1.0, 0.0};
-  
+
   EXPECT_FALSE( box1.intersects(box2, direction) );
 }
 
@@ -67,7 +67,7 @@ TEST(AABB, Intersects2dfWithMovingAABB_3) {
   AABB2df box1 = { {2.0, 2.0}, {1.0, 1.0} };
   AABB2df box2 = { {2.0, 5.0}, {0.5, 0.5} };
   Vector2df direction = {0.1, -3.0};
-  
+
   EXPECT_TRUE( box1.intersects(box2, direction) );
 }
 
@@ -75,7 +75,7 @@ TEST(AABB, Intersects2dfWithMovingAABB_4) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   AABB2df box2 = { {2.0, 0.0}, {0.5, 0.5} };
   Vector2df direction = {-1.0, 0.0};
-  
+
   EXPECT_TRUE(box1.intersects(box2, direction));
 }
 
@@ -84,9 +84,9 @@ TEST(AABB, SweepIntersects2df_1) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   AABB2df box2 = { {-2.0, -2.0}, {0.5, .5} };
   Vector2df direction = {1.0, 1.0};
-  
+
   Vector2df normal = box1.sweep_intersects(box2, direction);
-  
+
   EXPECT_TRUE(normal[0] < 0.0);
   EXPECT_TRUE(normal[1] < 0.0);
 }
@@ -95,7 +95,7 @@ TEST(AABB, SweepIntersects2df_2) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   AABB2df box2 = { {-2.0, -2.0}, {0.5, 0.5} };
   Vector2df direction = {1.0, 0.0};
-  
+
   Vector2df normal = box1.sweep_intersects(box2, direction);
 
   EXPECT_NEAR(0.0, normal[0], 0.00001);
@@ -106,9 +106,9 @@ TEST(AABB, SweepIntersects2df_3) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   AABB2df box2 = { {-2.0, -2.0}, {0.5, 0.5} };
   Vector2df direction = {1.0, 1.5};
-  
+
   Vector2df normal = box1.sweep_intersects(box2, direction);
-  
+
   EXPECT_TRUE(normal[0] < 0.0);
   EXPECT_NEAR(0.0, normal[1], 0.00001);
 }
@@ -117,9 +117,9 @@ TEST(AABB, SweepIntersects2df_4) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   AABB2df box2 = { {2.0, 0.0}, {0.5, 0.5} };
   Vector2df direction = {-1.0, 0.0};
-  
+
   Vector2df normal = box1.sweep_intersects(box2, direction);
-  
+
   EXPECT_TRUE(normal[0] > 0.0);
   EXPECT_NEAR(0.0, normal[1], 0.00001);
 }
@@ -128,9 +128,9 @@ TEST(AABB, SweepIntersects2df_5) {
   AABB2df box1 = { {0.0, 0.0}, {1.0, 1.0} };
   AABB2df box2 = { {-2.0, -2.0}, {0.5, 0.5} };
   Vector2df direction = {-1.0, -1.5};
-  
+
   Vector2df normal = box2.sweep_intersects(box1, direction);
-  
+
   EXPECT_TRUE(normal[0] > 0.0);
   EXPECT_NEAR(0.0, normal[1], 0.00001);
 }
@@ -139,18 +139,30 @@ TEST(AABB, SweepIntersects2df_5) {
 TEST(SPHERE, Intersects2dfWithSphere_1) {
   Sphere2df sphere1 = { {0.0, 0.0}, 1.0 };
   Sphere2df sphere2 = { {1.0, 1.0}, 0.5 };
-  
+
   EXPECT_TRUE( sphere1.intersects(sphere2) );
 }
 
 TEST(SPHERE, Intersects2dfWithSphere_2) {
   Sphere2df sphere1 = { {0.0, 0.0}, 1.0 };
   Sphere2df sphere2 = { {2.0, 2.0}, 0.5 };
-  
+
   EXPECT_FALSE( sphere1.intersects(sphere2) );
 }
 
+TEST(SPHERE, Intersects3dWithSphere_Touching){
+Sphere3df sphere_1 = {{0.f,0.f,0.f}, 2.f};
+Sphere3df sphere_2 = {{4.f,0.f,0.f}, 2.f};
 
+EXPECT_TRUE(sphere_1.intersects(sphere_2));
+}
+
+TEST(SPHERE, Intersects3dWithSphere_NearlyTouching){
+Sphere3df sphere_1 = {{0.f,0.f,0.f}, 2.f};
+Sphere3df sphere_2 = {{4.f,0.f,0.f}, 1.9999f};
+
+EXPECT_FALSE(sphere_1.intersects(sphere_2));
+}
 
 TEST(SPHERE, Intersects2dfWithRay_1) {
   Sphere2df sphere = { {0.0, 0.0}, 1.0 };
@@ -180,7 +192,7 @@ TEST(SPHERE, Intersects3dfWithRay_2) {
   Sphere3df sphere = { {0.0, 0.0, 0.0}, 1.0 };
   Ray3df ray{ {-2.0, -3.0, 0.0}, {1.0, 1.0, 0.0} };
   Intersection_Context<float,3u> context;
-  
+
   EXPECT_TRUE( sphere.intersects(ray, context) );
   EXPECT_NEAR( 2.0, context.t, 0.000001 );
   EXPECT_NEAR( 0.0, context.intersection[0], 0.000001 );
@@ -188,14 +200,14 @@ TEST(SPHERE, Intersects3dfWithRay_2) {
   EXPECT_NEAR( 0.0, context.intersection[2], 0.000001 );
   EXPECT_NEAR( 0.0, context.normal[0], 0.000001 );
   EXPECT_NEAR(-1.0, context.normal[1], 0.000001 );
-  EXPECT_NEAR( 0.0, context.normal[2], 0.000001 );  
+  EXPECT_NEAR( 0.0, context.normal[2], 0.000001 );
 }
 
 TEST(SPHERE, Intersects3dfWithRay_3) {
   Sphere3df sphere = { {1.0, 0.0, 0.0}, 1.0 };
   Ray3df ray{ {-1.0, -3.0, 0.0}, {1.0, 1.0, 0.0} };
   Intersection_Context<float,3u> context;
-  
+
   EXPECT_TRUE( sphere.intersects(ray, context) );
   EXPECT_NEAR( 2.0, context.t, 0.000001 );
   EXPECT_NEAR( 1.0, context.intersection[0], 0.000001 );
@@ -203,14 +215,14 @@ TEST(SPHERE, Intersects3dfWithRay_3) {
   EXPECT_NEAR( 0.0, context.intersection[2], 0.000001 );
   EXPECT_NEAR( 0.0, context.normal[0], 0.000001 );
   EXPECT_NEAR(-1.0, context.normal[1], 0.000001 );
-  EXPECT_NEAR( 0.0, context.normal[2], 0.000001 );  
+  EXPECT_NEAR( 0.0, context.normal[2], 0.000001 );
 }
 
 TEST(SPHERE, Intersects3dfWithRay_4) {
   Sphere3df sphere = { {1.0, 0.0, 0.0}, 0.5 };
   Ray3df ray{ {1.0, 3.0, 0.0}, {0.0, -1.0, 0.0} };
   Intersection_Context<float,3u> context;
-  
+
   EXPECT_TRUE( sphere.intersects(ray, context) );
   EXPECT_NEAR( 2.5, context.t, 0.000001 );
   EXPECT_NEAR( 1.0, context.intersection[0], 0.000001 );
@@ -218,14 +230,14 @@ TEST(SPHERE, Intersects3dfWithRay_4) {
   EXPECT_NEAR( 0.0, context.intersection[2], 0.000001 );
   EXPECT_NEAR( 0.0, context.normal[0], 0.000001 );
   EXPECT_NEAR( 1.0, context.normal[1], 0.000001 );
-  EXPECT_NEAR( 0.0, context.normal[2], 0.000001 );  
+  EXPECT_NEAR( 0.0, context.normal[2], 0.000001 );
 }
 
 TEST(SPHERE, Intersects3dfWithRay_5) {
   Sphere3df sphere = { {2.0, 0.0, 2.0}, 1.5 };
   Ray3df ray{ {3.5, 0.0, -0.5}, {0.0, 0.0, 1.0} };
   Intersection_Context<float,3u> context;
-  
+
   EXPECT_TRUE( sphere.intersects(ray, context) );
   EXPECT_NEAR( 2.5, context.t, 0.000001 );
   EXPECT_NEAR( 3.5, context.intersection[0], 0.000001 );
@@ -233,14 +245,14 @@ TEST(SPHERE, Intersects3dfWithRay_5) {
   EXPECT_NEAR( 2.0, context.intersection[2], 0.000001 );
   EXPECT_NEAR( 1.0, context.normal[0], 0.000001 );
   EXPECT_NEAR( 0.0, context.normal[1], 0.000001 );
-  EXPECT_NEAR( 0.0, context.normal[2], 0.000001 );  
+  EXPECT_NEAR( 0.0, context.normal[2], 0.000001 );
 }
 
 TEST(SPHERE, Intersects3dfWithRay_6) {
   Sphere3df sphere = { {-15.0f, 0.0f, 2.0f}, 10.0f };
   Ray3df ray{ {0.0f, 0.0f, 20.0f}, {0.0f, 0.0f, -15.0f} };
   Intersection_Context<float,3u> context;
-  
+
   EXPECT_FALSE( sphere.intersects(ray, context) );
 }
 
@@ -249,30 +261,41 @@ TEST(SPHERE, Intersects3dfWithRay_7) {
   Sphere3df sphere = { {3.0f, 3.0f, 0.0f}, 3.0f };
   Ray3df ray{ {3.5f, 3.0f, 0.0f}, {1.0f, 0.0f, 0.0f} };
   Intersection_Context<float,3u> context;
-  
+
   EXPECT_TRUE( sphere.intersects(ray, context) );
 }
 
-
-
-
 TEST(SPHERE, Inside_1) {
   Sphere3df sphere = { {3.0f, 3.0f, 0.0f}, 3.0f };
-  
+
   EXPECT_TRUE( sphere.inside( Vector3df{3.5f, 3.0f, 0.0f}) );
+}
+
+TEST(SPHERE, Inside_2) {
+    Sphere3df  sphere = {{0.f,0.f,0.f}, 5.f};
+
+EXPECT_TRUE(sphere.inside(Vector3df {0.f,0.f,1.f }));
 }
 
 TEST(SPHERE, NotInside_1) {
   Sphere3df sphere = { {3.0f, 3.0f, 0.0f}, 3.0f };
-  
+
   EXPECT_FALSE( sphere.inside( Vector3df{-0.5f, 0.0f, 0.0f}) );
+}
+
+TEST(SPHERE, NotInside_2) {
+    Sphere3df sphere = {{0.f,0.f,0.f}, 5.f};
+
+EXPECT_FALSE( sphere.
+
+inside(Vector3df{0.f,0.f,15.f}));
 }
 
 TEST(TRIANGLE, Intersects3dfWithRay_1) {
   Triangle3df triangle = { {0.0, 0.0, 0.0}, {0.0, 3.0, 0.0},{3.0, 0.0, 0.0}  };
   Ray3df ray{ {0.0, 0.0, 2.0}, {0.0, 0.0, -1.0} };
   Intersection_Context<float,3u> context;
-    
+
   EXPECT_TRUE( triangle.intersects(ray, context) );
   EXPECT_NEAR(2.0, context.t, 0.000001 );
   EXPECT_NEAR(0.0, context.intersection[0], 0.000001 );
@@ -291,7 +314,7 @@ TEST(TRIANGLE, Intersects3dfWithRay_2) {
   float t;
   Vector3df intersection{},
             normal{};
-  
+
   EXPECT_TRUE(triangle.intersects(ray, normal, intersection, u, v, t) );
   EXPECT_NEAR(2.0, t, 0.000001 );
   EXPECT_NEAR(1.0, intersection[0], 0.000001 );
@@ -308,7 +331,7 @@ TEST(TRIANGLE, Intersects3dfWithRay_3) {
   float t;
   Vector3df intersection{},
             normal{};
-  
+
   EXPECT_TRUE(triangle1.intersects(ray, normal, intersection, u, v, t) );
 }
 
@@ -321,7 +344,7 @@ TEST(TRIANGLE, Intersects3dfWithRay_4) {
   float t;
   Vector3df intersection{},
             normal{};
-  
+
   EXPECT_TRUE(triangle1.intersects(ray, normal, intersection, u, v, t) );
   EXPECT_NEAR(10.0, t, 0.00001);
 }
@@ -335,7 +358,7 @@ TEST(TRIANGLE, Intersects3dfWithRay_5) {
   float t;
   Vector3df intersection{},
             normal{};
-  
+
   EXPECT_TRUE(triangle1.intersects(ray, normal, intersection, u, v, t) );
   EXPECT_NEAR(2.0, t, 0.00001);
 }
@@ -349,7 +372,7 @@ TEST(TRIANGLE, Intersects3dfWithRay_6) {
   float t;
   Vector3df intersection{},
             normal{};
-  
+
   EXPECT_TRUE(triangle1.intersects(ray, normal, intersection, u, v, t) );
   EXPECT_NEAR(10.0, t, 0.00001);
 }
@@ -363,7 +386,7 @@ TEST(TRIANGLE, Intersects3dfWithRay_7) {
   float t;
   Vector3df intersection{},
             normal{};
-  
+
   EXPECT_TRUE(triangle1.intersects(ray, normal, intersection, u, v, t) );
   EXPECT_NEAR(10.0, t, 0.00001);
 }
@@ -377,7 +400,7 @@ TEST(TRIANGLE, Intersects3dfWithRay_8) {
   float t;
   Vector3df intersection{},
             normal{};
-  
+
   EXPECT_TRUE(triangle1.intersects(ray, normal, intersection, u, v, t) );
   EXPECT_NEAR(5.0, t, 0.00001);
 }
@@ -393,7 +416,7 @@ TEST(TRIANGLE, Intersects3dfWithRay_9) {
   float u;
   float v;
   float t;
-  
+
   EXPECT_TRUE(triangle1.intersects(ray, normal, intersection, u, v, t) );
   EXPECT_NEAR(1.0, t, 0.00001);
   EXPECT_NEAR(-3.0, intersection[0], 0.00001);
@@ -412,7 +435,7 @@ TEST(TRIANGLE, Intersects3dfWithRay_10) {
   float u;
   float v;
   float t;
-  
+
   EXPECT_TRUE(triangle1.intersects(ray, normal, intersection, u, v, t) );
 }
 
@@ -422,7 +445,7 @@ TEST(FRESNEL, Refract_1) {
   Ray3df ray{ eye, direction };
   Intersection_Context<float, 3> context{};
   Vector3df transmission{};
-  
+
   context.normal = {0.0f, 1.0f, 0.0f};
   bool refracted = refract<float, 3>(1.0f, context.normal, ray.direction, transmission);
   EXPECT_TRUE( refracted );

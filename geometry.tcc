@@ -86,7 +86,7 @@ template<class FLOAT, size_t N>
 bool Sphere<FLOAT, N>::intersects(Sphere<FLOAT, N> sphere) const {
     Vector distanceVector = this->center - sphere.center;
     FLOAT radiusDistance = this->radius + sphere.radius;
-    if(distanceVector.length() < radiusDistance){
+    if(distanceVector.length() <= radiusDistance){
         return true;
     }
     return false;
