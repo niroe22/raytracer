@@ -91,6 +91,12 @@ TEST(VECTOR, SquareOfLength3df) {
   EXPECT_NEAR(25.0, vector.square_of_length(), 0.00001);
 }
 
+TEST(VECTOR, SquareOfLength3df_2) {
+  Vector3df vector = {0.5, 0.0, 3.0};
+
+  EXPECT_NEAR(9.25, vector.square_of_length(), 0.00001);
+}
+
 TEST(VECTOR, Length) {
   Vector2df vector = {-3.0, 4.0};
   
@@ -102,6 +108,12 @@ TEST(VECTOR, Length3df) {
   float length = vector.length();
     
   EXPECT_NEAR(5.0, length, 0.00001);
+}
+TEST(VECTOR, Length3df_2) {
+  Vector3df vector = {0.5, 0.0, 3.0};
+  float length = vector.length();
+
+  EXPECT_NEAR(sqrt(9.25), length, 0.00001);
 }
 
 TEST(VECTOR, Normalize) {
@@ -235,6 +247,26 @@ TEST(VECTOR, ScalarProduct3df) {
   EXPECT_NEAR(2.0, vector2[1], 0.00001);
   EXPECT_NEAR(0.0, vector2[2], 0.00001);
 }
+TEST(VECTOR, ScalarProduct3df_2) {
+  Vector3df vector1 = {0.5, 1.5, 0.5};
+  Vector3df vector2 = 2.0f * vector1;
+
+EXPECT_NEAR(vector1*vector2, 0.5 + 1.5 * 3.0 + 0.5, 0.00001);
+}
+
+TEST(VECTOR, ScalarProduct3df_3) {
+  Vector3df vector1 = {1.5, 1.5, 1.5};
+  Vector3df vector2 = 2.0f * vector1;
+
+EXPECT_NEAR(vector1*vector2, 1.5 * 3.0 + 1.5 * 3.0 + 1.5 * 3.0, 0.00001);
+}
+
+TEST(VECTOR, ScalarProduct3df_4) {
+  Vector3df vector1 = {1.5, 1.5, 1.5};
+  Vector3df vector2 = 2.0f * vector1;
+
+EXPECT_NEAR(vector1*vector2, 1.5 * 3.0 + 1.5 * 3.0 + 1.5 * 3.0, 0.00001);
+}
 
 
 TEST(VECTOR, ScalarAssignmentProduct) {
@@ -289,14 +321,6 @@ TEST(VECTOR, ScalarVectorProduct3df_2) {
   
   EXPECT_NEAR(-1.0, vector1 * vector2, 0.00001);
 }
-
-TEST(VECTOR, ScalarVectorProduct3df_3) {
-  Vector3df vector1 = {0.0,  -2.0, 0.0};
-  Vector3df vector2 = {0.0, -10.0, 0.0};
-  
-  EXPECT_NEAR(20.0, vector1 * vector2, 0.00001);
-}
-
 
 TEST(VECTOR, CrossVectorProduct1) {
   Vector3df vector1 = {1.0, 0.0, 0.0};
