@@ -15,5 +15,6 @@ void write_color(std::ostream &out, Vector<F,K> pixel_color) {
     out << static_cast<int>(255.999 * pixel_color[0]) << ' '
         << static_cast<int>(255.999 * pixel_color[1]) << ' '
         << static_cast<int>(255.999 * pixel_color[2]) << '\n';
+
 }
 #endif //RAYTRACER_COLOR_H

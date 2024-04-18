@@ -1,9 +1,8 @@
 #include "math.h"
 #include "geometry.h"
 #include "color.h"
-#include <iostream>
-#include <vector>
 #include <algorithm>
+#include <vector>
 
 // Die folgenden Kommentare beschreiben Datenstrukturen und Funktionen
 // Die Datenstrukturen und Funktionen die weiter hinten im Text beschrieben sind,
@@ -65,23 +64,41 @@
 
 // Die rekursive raytracing-Methode. Am besten ab einer bestimmten Rekursionstiefe (z.B. als Parameter übergeben) abbrechen.
 
+class worldObjects {
+    std::vector <Sphere3df> objects;
+
+    worldObjects() {}
+
+    worldObjects(Sphere3df object) { add(object); }
+
+    void add(Sphere3df object) { objects.push_back(object); }
+
+    template <class FLOAT, size_t N>
+    bool hit(const Ray<FLOAT, N> &r, Intersection_Context<FLOAT, N> &rec) {
+        bool hit_anything = false;
+        Intersection_Context<FLOAT, N> temp_rec;
+
+        for (const auto &object: objects) {
+            if (object.intersects(r, temp_rec)) {
+                hit_anything = true;
+                rec = temp_rec;
+            }
+        }
+
+        return hit_anything;
+    }
+};
 
 template<class FLOAT, size_t N>
-Vector<FLOAT, N> ray_color(const Ray<FLOAT, N> &r) {
-    Sphere3df sphere = {{0.f, 0.f, -1.f}, 0.5f};
-    float t = sphere.intersects(r);
-    if (t > 0.f) {
-        Vector3df vector_temp = r.direction + r.origin;
-        Vector3df vector_n = (vector_temp.operator*=(t) + Vector3df({0.f, 0.f, 1.f}));
-        vector_n *= (1 / vector_n.length());
-        Vector3df color ={vector_n[0] + 1.f, vector_n[1] + 1.f, vector_n[2] + 1.f};
-        return 0.5f * color;
+Vector<FLOAT, N> ray_color(const Ray<FLOAT, N>& r, const worldObjects world) {
+    Intersection_Context<FLOAT, N> rec;
+    if (world.intersects(r, rec)) {
+        return 0.5f * (rec.normal + Vector3df{1.f, 1.f, 1.f});
     }
-
-    Vector3df unit_direction = (1.f / r.direction.length()) * r.direction;
+    Vector3df unit_direction = r.direction * 1 / r.direction.length();
     auto a = 0.5f * (unit_direction[1] + 1.f);
-    return (1.f - a) * Vector3df({1.f, 1.f, 1.f}) + a * Vector3df({0.5f, 0.7f, 1.f});
-}
+    return (1.f - a) * Vector3df{1.f, 1.f, 1.f} + a * Vector3df{0.5f, 0.7f, 1.f};
+    }
 
 int main(void) {
     // Bildschirm erstellen
@@ -93,10 +110,15 @@ int main(void) {
 
     //Image
     float aspect_ratio = 16.0 / 9.0;
-    int image_width = 256;
+    int image_width = 2000;
 
     int image_height = static_cast<int>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
+
+    worldObjects world;
+
+    world.add((Sphere3df{0.f, 0.f,-1.f}, 0.5f}));
+    world.add(Sphere3df{0.f, -100.5,-1.f}, 100.f});
 
     float focal_length = 1.0;
     float viewport_height = 2.0;
@@ -121,7 +143,7 @@ int main(void) {
             auto ray_dircetion = pixel_center + camera_center;
 
             Ray3df r = Ray3df({camera_center, ray_dircetion});
-            Vector pixel_color = ray_color(r);
+            Vector pixel_color = ray_color(r, world);
             write_color(std::cout, pixel_color);
         }
     }

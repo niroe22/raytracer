@@ -6,5 +6,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_compile_options(-g -Wall -Wextra -Wpedantic -Wl,--stack,16777216)
 
-add_executable(raytracer raytracer.cc math_test.cc math.h math.tcc math.cc geometry.cc geometry.h geometry.tcc geometry_test.cc )
+add_executable(
+        raytracer
+        raytracer.cc
+        math_test.cc
+        math.h
+        math.tcc
+        math.cc
+        geometry.cc
+        geometry.h
+        geometry.tcc
+        geometry_test.cc
+)
 target_link_libraries(raytracer gtest gtest_main)

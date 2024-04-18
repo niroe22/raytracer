@@ -1,3 +1,0 @@
-/home/nkls/CompGrafikLabor/Aufgabe2/raytracer/CMakeFiles/raytracer.dir
-/home/nkls/CompGrafikLabor/Aufgabe2/raytracer/CMakeFiles/edit_cache.dir
-/home/nkls/CompGrafikLabor/Aufgabe2/raytracer/CMakeFiles/rebuild_cache.dir
