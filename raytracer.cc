@@ -70,6 +70,7 @@ public:
     Vector3df  color;
     bool reflective;
 
+    wObject(): sphere({0.f, 0.f, 0.f}, 0.f), color({0.f, 0.f, 0.f}), reflective(false) {}
     wObject(const Sphere3df &s, const Vector3df &c, const bool &r )
     : sphere(s), color(c), reflective(r) {}
 };
@@ -84,8 +85,8 @@ public:
     void add(wObject object) { objects.push_back(object); }
 
     template<class FLOAT, size_t N>
-            bool hit(const Ray<FLOAT, N> &r, Intersection_Context<FLOAT, N> &rec) {
-        bool hit_anything = false;
+    wObject* hit(const Ray<FLOAT, N> &r, Intersection_Context<FLOAT, N> &rec) {
+        wObject nearest;
         Intersection_Context<FLOAT, N> temp_rec;
         float closest_so_far = std::numeric_limits<float>::max();
 
@@ -93,23 +94,26 @@ public:
             if (object.sphere.intersects(r, temp_rec)) {
                 if (closest_so_far > temp_rec.t && temp_rec.t > 0) {
                     closest_so_far = temp_rec.t;
-                    hit_anything = true;
+                    nearest = object;
                     rec = temp_rec;
                 }
             }
         }
-        return hit_anything;
+
+        if(closest_so_far == std::numeric_limits<float>::max())
+            return nullptr;
+
+        return new wObject(nearest.sphere, nearest.color, nearest.reflective);
     }
 };
 template<class FLOAT, size_t N>
 Vector<FLOAT, N> ray_color(const Ray<FLOAT, N> &r, worldObjects& world) {
     Intersection_Context<FLOAT, N> rec;
-    if (world.hit(r, rec)) {
-        return 0.5f * (rec.normal + Vector3df{1.f, 1.f, 1.f});
+    wObject* object = world.hit(r, rec);
+    if (world.hit(r, rec) != nullptr) {
+        return object->color;
     }
-    Vector3df  unit_direction = (1.f / r.direction.length()) * r.direction;
-    auto a = 0.5f * (unit_direction[1] + 1.f);
-    return (1.f -a) * Vector3df{1.f, 1.f, 1.f} + a * Vector3df{0.5f, 0.7f, 1.f};
+    return Vector3df {0.f, 0.f, 0.f};
 }
 
 int main(void) {
@@ -127,8 +131,12 @@ int main(void) {
     int image_height = static_cast<int>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
 
-    worldObjects world(wObject(Sphere3df({0.f, 0.f, -1.f}, 0.2f), Vector3df({1.f, 0.f, 0.f}), false));
-    world.add(wObject(Sphere3df({0.f, -100.5f, -1.f}, 100.f), Vector3df({1.f, 0.f, 0.f}), false));
+    worldObjects world(wObject(Sphere3df({0.f, 0.f, -1.f}, 0.5f), Vector3df({1.f, 0.f, 0.f}), false));
+    world.add(wObject(Sphere3df({0.f, 11.f, -0.1f}, 10.f), Vector3df({0.f, 1.f, 0.f}), false));
+    world.add(wObject(Sphere3df({0.f, -11.f, -0.1f}, 10.f), Vector3df({1.f, 1.f, 0.f}), false));
+    world.add(wObject(Sphere3df({-12.5f, 0.f, 0.f}, 10.f), Vector3df({0.f, 0.f, 1.f}), false));
+    world.add(wObject(Sphere3df({12.5f, 0.f, 0.f}, 10.f), Vector3df({1.f, 1.f, 1.f}), false));
+    world.add(wObject(Sphere3df({0.f, 0.f, 100.f}, 50.f), Vector3df({0.f, .2f, .1f}), false));
 
     float focal_length = 1.0;
     float viewport_height = 2.0;
