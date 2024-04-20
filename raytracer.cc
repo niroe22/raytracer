@@ -64,23 +64,52 @@
 // Am besten einen Zeiger auf das Objekt zurückgeben. Wenn dieser nullptr ist, dann gibt es kein sichtbares Objekt.
 
 // Die rekursive raytracing-Methode. Am besten ab einer bestimmten Rekursionstiefe (z.B. als Parameter übergeben) abbrechen.
+class wObject {
+public:
+    Sphere3df  sphere;
+    Vector3df  color;
+    bool reflective;
 
+    wObject(const Sphere3df &s, const Vector3df &c, const bool &r )
+    : sphere(s), color(c), reflective(r) {}
+};
 
-template<class FLOAT, size_t N>
-Vector<FLOAT, N> ray_color(const Ray<FLOAT, N> &r) {
-    Sphere3df sphere = {{0.f, 0.f, -1.f}, 0.5f};
-    float t = sphere.intersects(r);
-    if (t > 0.f) {
-        Vector3df vector_temp = r.direction + r.origin;
-        Vector3df vector_n = (vector_temp.operator*=(t) + Vector3df({0.f, 0.f, 1.f}));
-        vector_n *= (1 / vector_n.length());
-        Vector3df color ={vector_n[0] + 1.f, vector_n[1] + 1.f, vector_n[2] + 1.f};
-        return 0.5f * color;
+class worldObjects {
+public:
+    std::vector<wObject> objects;
+
+    worldObjects();
+    worldObjects(wObject object) { add(object); }
+
+    void add(wObject object) { objects.push_back(object); }
+
+    template<class FLOAT, size_t N>
+            bool hit(const Ray<FLOAT, N> &r, Intersection_Context<FLOAT, N> &rec) {
+        bool hit_anything = false;
+        Intersection_Context<FLOAT, N> temp_rec;
+        float closest_so_far = std::numeric_limits<float>::max();
+
+        for (const auto &object: objects) {
+            if (object.sphere.intersects(r, temp_rec)) {
+                if (closest_so_far > temp_rec.t && temp_rec.t > 0) {
+                    closest_so_far = temp_rec.t;
+                    hit_anything = true;
+                    rec = temp_rec;
+                }
+            }
+        }
+        return hit_anything;
     }
-
-    Vector3df unit_direction = (1.f / r.direction.length()) * r.direction;
+};
+template<class FLOAT, size_t N>
+Vector<FLOAT, N> ray_color(const Ray<FLOAT, N> &r, worldObjects& world) {
+    Intersection_Context<FLOAT, N> rec;
+    if (world.hit(r, rec)) {
+        return 0.5f * (rec.normal + Vector3df{1.f, 1.f, 1.f});
+    }
+    Vector3df  unit_direction = (1.f / r.direction.length()) * r.direction;
     auto a = 0.5f * (unit_direction[1] + 1.f);
-    return (1.f - a) * Vector3df({1.f, 1.f, 1.f}) + a * Vector3df({0.5f, 0.7f, 1.f});
+    return (1.f -a) * Vector3df{1.f, 1.f, 1.f} + a * Vector3df{0.5f, 0.7f, 1.f};
 }
 
 int main(void) {
@@ -93,10 +122,13 @@ int main(void) {
 
     //Image
     float aspect_ratio = 16.0 / 9.0;
-    int image_width = 256;
+    int image_width = 1000;
 
     int image_height = static_cast<int>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
+
+    worldObjects world(wObject(Sphere3df({0.f, 0.f, -1.f}, 0.2f), Vector3df({1.f, 0.f, 0.f}), false));
+    world.add(wObject(Sphere3df({0.f, -100.5f, -1.f}, 100.f), Vector3df({1.f, 0.f, 0.f}), false));
 
     float focal_length = 1.0;
     float viewport_height = 2.0;
@@ -121,7 +153,7 @@ int main(void) {
             auto ray_dircetion = pixel_center + camera_center;
 
             Ray3df r = Ray3df({camera_center, ray_dircetion});
-            Vector pixel_color = ray_color(r);
+            Vector pixel_color = ray_color(r,world);
             write_color(std::cout, pixel_color);
         }
     }
