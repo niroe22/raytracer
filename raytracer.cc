@@ -131,12 +131,22 @@ int main(void) {
     int image_height = static_cast<int>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
 
-    worldObjects world(wObject(Sphere3df({0.f, 0.f, -1.f}, 0.5f), Vector3df({1.f, 0.f, 0.f}), false));
-    world.add(wObject(Sphere3df({0.f, 11.f, -0.1f}, 10.f), Vector3df({0.f, 1.f, 0.f}), false));
-    world.add(wObject(Sphere3df({0.f, -11.f, -0.1f}, 10.f), Vector3df({1.f, 1.f, 0.f}), false));
-    world.add(wObject(Sphere3df({-12.5f, 0.f, 0.f}, 10.f), Vector3df({0.f, 0.f, 1.f}), false));
-    world.add(wObject(Sphere3df({12.5f, 0.f, 0.f}, 10.f), Vector3df({1.f, 1.f, 1.f}), false));
-    world.add(wObject(Sphere3df({0.f, 0.f, 100.f}, 50.f), Vector3df({0.f, .2f, .1f}), false));
+    //rot
+    worldObjects world(wObject(Sphere3df({-1.3f, -.8f, -2.f}, 0.5f), Vector3df({1.f, 0.f, 0.f}), false));
+    //Lila
+    world.add(wObject(Sphere3df({1.f, -1.f, -1.4f}, 0.5f), Vector3df({0.5f, 0.f, 0.5f}), false));
+    //grün
+    world.add(wObject(Sphere3df({100000.f, 0.f, -10.5f}, 95000.f), Vector3df({0.f, 1.f, 0.f}), false));
+    //gelb
+    world.add(wObject(Sphere3df({-100000.f, 0.f, -10.5f}, 95000.f), Vector3df({1.f, 1.f, 0.f}), false));
+    //blau
+    world.add(wObject(Sphere3df({0.f, 0.f, -100000.f}, 95000.f), Vector3df({0.f, 0.f, 1.f}), false));
+    //leicht blau(Rückwand)
+    world.add(wObject(Sphere3df({0.f, 0.f, 100000.f}, 95000.f), Vector3df({0.f, 0.f, 0.1f}), false));
+    //weiß
+    world.add(wObject(Sphere3df({0.f, 111000.f, -10.f}, 108000.f), Vector3df({1.f, 1.f, 1.f}), false));
+    //Dunkel Grün
+    world.add(wObject(Sphere3df({0.f, -111000.f, -10.f}, 108000.f), Vector3df({0.f, .2f, .1f}), false));
 
     float focal_length = 1.0;
     float viewport_height = 2.0;
