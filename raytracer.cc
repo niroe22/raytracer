@@ -54,7 +54,14 @@
 // Punktförmige "Lichtquellen" können einfach als Vector3df implementiert werden mit weisser Farbe,
 // bei farbigen Lichtquellen müssen die entsprechenden Daten in Objekt zusammengefaßt werden
 // Bei mehreren Lichtquellen können diese in einen std::vector gespeichert werden.
+class light {
+public:
+    Vector3df center;
+    Vector3df color = {0.984f, 0.145f, 0.125f};
 
+    light(const Vector3df &center)
+    : center(center){}
+};
 // Sie benötigen eine Implementierung von Lambertian-Shading, z.B. als Funktion
 // Benötigte Werte können als Parameter übergeben werden, oder wenn diese Funktion eine Objektmethode eines
 // Szene-Objekts ist, dann kann auf die Werte teilweise direkt zugegriffen werden.
@@ -78,7 +85,7 @@ public:
 class worldObjects {
 public:
     std::vector<wObject> objects;
-
+    std::vector<light> lights;
     worldObjects();
     worldObjects(wObject object) { add(object); }
 
@@ -143,11 +150,16 @@ int main(void) {
     world.add(wObject(Sphere3df({0.f, 0.f, -100000.f}, 95000.f), Vector3df({0.f, 0.f, 1.f}), false));
     //leicht blau(Rückwand)
     world.add(wObject(Sphere3df({0.f, 0.f, 100000.f}, 95000.f), Vector3df({0.f, 0.f, 0.1f}), false));
-    //weiß
-    world.add(wObject(Sphere3df({0.f, 111000.f, -10.f}, 108000.f), Vector3df({1.f, 1.f, 1.f}), false));
+    //turkis
+    world.add(wObject(Sphere3df({0.f, 111000.f, -10.f}, 108000.f), Vector3df({0.3f, 1.f, 1.f}), false));
     //Dunkel Grün
     world.add(wObject(Sphere3df({0.f, -111000.f, -10.f}, 108000.f), Vector3df({0.f, .2f, .1f}), false));
 
+    light left_light(Vector3df {-1.f, 1.f, -3.f});
+    light right_light(Vector3df {1.f, 1.f, -3.f});
+
+    world.lights.push_back(left_light);
+    world.lights.push_back(right_light);
     float focal_length = 1.0;
     float viewport_height = 2.0;
     float viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
