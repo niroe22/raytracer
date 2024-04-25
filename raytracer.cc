@@ -67,6 +67,7 @@ public:
 // Szene-Objekts ist, dann kann auf die Werte teilweise direkt zugegriffen werden.
 // Bei mehreren Lichtquellen muss der resultierende diffuse Farbanteil durch die Anzahl Lichtquellen geteilt werden.
 
+
 // Für einen Sehstrahl aus allen Objekte, dasjenige finden, das dem Augenpunkt am nächsten liegt.
 // Am besten einen Zeiger auf das Objekt zurückgeben. Wenn dieser nullptr ist, dann gibt es kein sichtbares Objekt.
 
@@ -118,7 +119,13 @@ Vector<FLOAT, N> ray_color(const Ray<FLOAT, N> &r, worldObjects& world) {
     Intersection_Context<FLOAT, N> rec;
     wObject* object = world.hit(r, rec);
     if (world.hit(r, rec) != nullptr) {
-        return object->color;
+        Vector3df lambertarian = (world.lights[0].center -  rec.intersection);
+        lambertarian.normalize();
+        float intensety = rec.normal * lambertarian;
+        if ( intensety < 0 ){
+            return 0.f * object->color;
+        }
+        return intensety * object->color;
     }
     return Vector3df {0.f, 0.f, 0.f};
 }
@@ -153,13 +160,14 @@ int main(void) {
     //turkis
     world.add(wObject(Sphere3df({0.f, 111000.f, -10.f}, 108000.f), Vector3df({0.3f, 1.f, 1.f}), false));
     //Dunkel Grün
-    world.add(wObject(Sphere3df({0.f, -111000.f, -10.f}, 108000.f), Vector3df({0.f, .2f, .1f}), false));
+    world.add(wObject(Sphere3df({0.f, -111000.f, -10.f}, 108000.f), Vector3df({1.f, .2f, .1f}), false));
 
-    light left_light(Vector3df {-1.f, 1.f, -3.f});
+    light left_light(Vector3df {-1.f, 1.f, -1.f});
     light right_light(Vector3df {1.f, 1.f, -3.f});
 
     world.lights.push_back(left_light);
     world.lights.push_back(right_light);
+
     float focal_length = 1.0;
     float viewport_height = 2.0;
     float viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
