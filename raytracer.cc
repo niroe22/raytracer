@@ -143,7 +143,7 @@ int main(void) {
 
     //Image
     float aspect_ratio = 16.0 / 9.0;
-    int image_width = 1000;
+    float image_width = 1000;
 
     int image_height = static_cast<int>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
