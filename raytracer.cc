@@ -57,7 +57,7 @@
 class light {
 public:
     Vector3df center;
-    Vector3df color = {0.984f, 0.145f, 0.125f};
+    Vector3df color = {0.f, 0.f, 0.f};
 
     light(const Vector3df &center)
     : center(center){}
@@ -115,20 +115,22 @@ public:
     }
 };
 template<class FLOAT, size_t N>
-Vector<FLOAT, N> ray_color(const Ray<FLOAT, N> &r, worldObjects& world) {
+Vector<FLOAT, N> ray_color(const Ray<FLOAT, N> &r, worldObjects& world, int depth) {
     Intersection_Context<FLOAT, N> rec;
     wObject* object = world.hit(r, rec);
     if (world.hit(r, rec) != nullptr) {
+        if(object->reflective) {
+            Vector3df reflective_Vec = r.direction - 2.f * (r.direction * rec.normal) * rec.normal;
+            Ray3df reflective_r = {rec.intersection + 0.1f * rec.normal, reflective_Vec};
+            return ray_color(reflective_r, world, depth -1);
+        }
         Vector3df lambertarian = (world.lights[0].center -  rec.intersection);
-        Vector3df lambertarian2 = (world.lights[1].center - rec.intersection);
         lambertarian.normalize();
-        lambertarian2.normalize();
         float intensety = rec.normal * lambertarian;
-        float intensety2 = rec.normal * lambertarian2;
-        if ( intensety < 0  || intensety2 < 0){
+        if ( intensety < 0){
             return 0.f * object->color;
         }
-        return (intensety * intensety2) * object->color;
+        return intensety * object->color;
     }
     return Vector3df {0.f, 0.f, 0.f};
 }
@@ -149,29 +151,27 @@ int main(void) {
     image_height = (image_height < 1) ? 1 : image_height;
 
     //rot
-    worldObjects world(wObject(Sphere3df({3.f, -8.f, -15.f}, 1.f), Vector3df({1.f, 0.f, 0.f}), false));
+    worldObjects world(wObject(Sphere3df({3.f, -8.f, -13.f}, 2.f), Vector3df({1.f, 0.f, 0.f}), true));
     //Lila
     world.add(wObject(Sphere3df({-9.f, -8.f, -17.f}, 3.f), Vector3df({0.5f, 0.f, 0.5f}), false));
 
-    //grün
+    //RechteWand
     world.add(wObject(Sphere3df({10021.f, 0.0f, 0.f }, 10000.f), Vector3df({0.f, 1.f, 0.f}), false));
-    //gelb
+    //Linkewand
     world.add(wObject(Sphere3df({ -10021.f, 0.0f, 0.f }, 10000.f), Vector3df({1.f, 1.f, 0.f}), false));
-    //blau
+    //Boden
     world.add(wObject(Sphere3df({0.f, -10012.0f, 0.f}, 10000.f), Vector3df({0.f, 0.f, 1.f}), false));
-    //leicht blau(Rückwand)
-    world.add(wObject(Sphere3df({0.f, 10012.0f, 0.f}, 10000.f), Vector3df({0.f, 1.f, 0.5f}), false));
-    //turkis
+    //Decke
+    world.add(wObject(Sphere3df({0.f, 10012.0f, 0.f}, 10000.f), Vector3df({0.5f, 0.5f, 1.f}), false));
+    //Rückwand
     world.add(wObject(Sphere3df({0.0f, 0.0f, -10030.f}, 10000.f), Vector3df({0.3f, 1.f, 1.f}), false));
-    //Dunkel Grün
-    world.add(wObject(Sphere3df({0.0f, 0.0f, 10030.f}, 10000.f), Vector3df({1.f, .2f, .1f}), false));
-    //world.add(wObject(Sphere3df({3.f, 5.f, -6.f}, .2f), Vector3df({1.f, 1.f, 1.f}), false));
+    //Off wand
+    world.add(wObject(Sphere3df({0.0f, 0.0f, 10030.f}, 10000.f), Vector3df({.9f, .2f, 0.f}), false));
+    //world.add(wObject(Sphere3df({-10.f, 12.f, -18.f}, 1.f), Vector3df({0.f, 1.f, 1.f}), false));
 
-    light left_light(Vector3df {-3.f, 5.f, -6.f});
-    light right_light(Vector3df {3.f, 5.f, -6.f});
+    light left_light(Vector3df {-10.f, 11.f, -18.f});
 
     world.lights.push_back(left_light);
-    world.lights.push_back(right_light);
 
     float focal_length = 5.f;
     float viewport_height = 9.f;
@@ -198,7 +198,7 @@ int main(void) {
             auto ray_dircetion = pixel_center + camera_center;
 
             Ray3df r = Ray3df({camera_center, ray_dircetion});
-            Vector pixel_color = ray_color(r,world);
+            Vector pixel_color = ray_color(r,world, 5);
             write_color(std::cout, pixel_color);
         }
     }
