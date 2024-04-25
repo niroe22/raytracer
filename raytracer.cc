@@ -117,18 +117,27 @@ public:
 template<class FLOAT, size_t N>
 Vector<FLOAT, N> ray_color(const Ray<FLOAT, N> &r, worldObjects& world, int depth) {
     Intersection_Context<FLOAT, N> rec;
+    Intersection_Context<FLOAT, N> shader_Rec;
+
     wObject* object = world.hit(r, rec);
-    if (world.hit(r, rec) != nullptr) {
+    if (depth > 0 && world.hit(r, rec) != nullptr ) {
+        Vector3df lambertarian = (world.lights[0].center -  rec.intersection);
+        Ray3df shaderRay = {rec.intersection + 0.01f * rec.normal, lambertarian};
+        world.hit(shaderRay,shader_Rec);
+        float intensety = 0.f;
+        if(shader_Rec.t > 0 && shader_Rec.t < 1){
+            intensety = 0.3f;
+        } else {
+            lambertarian.normalize();
+            intensety = rec.normal * lambertarian;
+        }
+        if ( intensety < 0.3f){
+            intensety = 0.3f;
+        }
         if(object->reflective) {
             Vector3df reflective_Vec = r.direction - 2.f * (r.direction * rec.normal) * rec.normal;
             Ray3df reflective_r = {rec.intersection + 0.1f * rec.normal, reflective_Vec};
-            return ray_color(reflective_r, world, depth -1);
-        }
-        Vector3df lambertarian = (world.lights[0].center -  rec.intersection);
-        lambertarian.normalize();
-        float intensety = rec.normal * lambertarian;
-        if ( intensety < 0){
-            return 0.f * object->color;
+            return intensety * ray_color(reflective_r, world, depth - 1);
         }
         return intensety * object->color;
     }
@@ -145,15 +154,15 @@ int main(void) {
 
     //Image
     float aspect_ratio = 16.0 / 9.0;
-    float image_width = 1000;
+    float image_width = 8000;
 
     int image_height = static_cast<int>(image_width / aspect_ratio);
     image_height = (image_height < 1) ? 1 : image_height;
 
     //rot
-    worldObjects world(wObject(Sphere3df({3.f, -8.f, -13.f}, 2.f), Vector3df({1.f, 0.f, 0.f}), true));
+    worldObjects world(wObject(Sphere3df({3.f, -8.f, -13.f}, 2.f), Vector3df({1.f, 0.f, 0.f}), false));
     //Lila
-    world.add(wObject(Sphere3df({-9.f, -8.f, -17.f}, 3.f), Vector3df({0.5f, 0.f, 0.5f}), false));
+    world.add(wObject(Sphere3df({-9.f, -8.f, -17.f}, 3.f), Vector3df({0.5f, 0.f, 0.5f}), true));
 
     //RechteWand
     world.add(wObject(Sphere3df({10021.f, 0.0f, 0.f }, 10000.f), Vector3df({0.f, 1.f, 0.f}), false));
@@ -169,9 +178,9 @@ int main(void) {
     world.add(wObject(Sphere3df({0.0f, 0.0f, 10030.f}, 10000.f), Vector3df({.9f, .2f, 0.f}), false));
     //world.add(wObject(Sphere3df({-10.f, 12.f, -18.f}, 1.f), Vector3df({0.f, 1.f, 1.f}), false));
 
-    light left_light(Vector3df {-10.f, 11.f, -18.f});
+    light light(Vector3df {0.f, 11.f, -18.f});
 
-    world.lights.push_back(left_light);
+    world.lights.push_back(light);
 
     float focal_length = 5.f;
     float viewport_height = 9.f;
