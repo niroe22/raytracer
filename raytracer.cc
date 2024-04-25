@@ -120,12 +120,15 @@ Vector<FLOAT, N> ray_color(const Ray<FLOAT, N> &r, worldObjects& world) {
     wObject* object = world.hit(r, rec);
     if (world.hit(r, rec) != nullptr) {
         Vector3df lambertarian = (world.lights[0].center -  rec.intersection);
+        Vector3df lambertarian2 = (world.lights[1].center - rec.intersection);
         lambertarian.normalize();
+        lambertarian2.normalize();
         float intensety = rec.normal * lambertarian;
-        if ( intensety < 0 ){
+        float intensety2 = rec.normal * lambertarian2;
+        if ( intensety < 0  || intensety2 < 0){
             return 0.f * object->color;
         }
-        return intensety * object->color;
+        return (intensety * intensety2) * object->color;
     }
     return Vector3df {0.f, 0.f, 0.f};
 }
@@ -146,42 +149,46 @@ int main(void) {
     image_height = (image_height < 1) ? 1 : image_height;
 
     //rot
-    worldObjects world(wObject(Sphere3df({-1.3f, -.8f, -2.f}, 0.5f), Vector3df({1.f, 0.f, 0.f}), false));
+    worldObjects world(wObject(Sphere3df({3.f, -8.f, -15.f}, 1.f), Vector3df({1.f, 0.f, 0.f}), false));
     //Lila
-    world.add(wObject(Sphere3df({1.f, -1.f, -1.4f}, 0.5f), Vector3df({0.5f, 0.f, 0.5f}), false));
-    //grün
-    world.add(wObject(Sphere3df({100000.f, 0.f, -10.5f}, 95000.f), Vector3df({0.f, 1.f, 0.f}), false));
-    //gelb
-    world.add(wObject(Sphere3df({-100000.f, 0.f, -10.5f}, 95000.f), Vector3df({1.f, 1.f, 0.f}), false));
-    //blau
-    world.add(wObject(Sphere3df({0.f, 0.f, -100000.f}, 95000.f), Vector3df({0.f, 0.f, 1.f}), false));
-    //leicht blau(Rückwand)
-    world.add(wObject(Sphere3df({0.f, 0.f, 100000.f}, 95000.f), Vector3df({0.f, 0.f, 0.1f}), false));
-    //turkis
-    world.add(wObject(Sphere3df({0.f, 111000.f, -10.f}, 108000.f), Vector3df({0.3f, 1.f, 1.f}), false));
-    //Dunkel Grün
-    world.add(wObject(Sphere3df({0.f, -111000.f, -10.f}, 108000.f), Vector3df({1.f, .2f, .1f}), false));
+    world.add(wObject(Sphere3df({-9.f, -8.f, -17.f}, 3.f), Vector3df({0.5f, 0.f, 0.5f}), false));
 
-    light left_light(Vector3df {-1.f, 1.f, -1.f});
-    light right_light(Vector3df {1.f, 1.f, -3.f});
+    //grün
+    world.add(wObject(Sphere3df({10021.f, 0.0f, 0.f }, 10000.f), Vector3df({0.f, 1.f, 0.f}), false));
+    //gelb
+    world.add(wObject(Sphere3df({ -10021.f, 0.0f, 0.f }, 10000.f), Vector3df({1.f, 1.f, 0.f}), false));
+    //blau
+    world.add(wObject(Sphere3df({0.f, -10012.0f, 0.f}, 10000.f), Vector3df({0.f, 0.f, 1.f}), false));
+    //leicht blau(Rückwand)
+    world.add(wObject(Sphere3df({0.f, 10012.0f, 0.f}, 10000.f), Vector3df({0.f, 1.f, 0.5f}), false));
+    //turkis
+    world.add(wObject(Sphere3df({0.0f, 0.0f, -10030.f}, 10000.f), Vector3df({0.3f, 1.f, 1.f}), false));
+    //Dunkel Grün
+    world.add(wObject(Sphere3df({0.0f, 0.0f, 10030.f}, 10000.f), Vector3df({1.f, .2f, .1f}), false));
+    //world.add(wObject(Sphere3df({3.f, 5.f, -6.f}, .2f), Vector3df({1.f, 1.f, 1.f}), false));
+
+    light left_light(Vector3df {-3.f, 5.f, -6.f});
+    light right_light(Vector3df {3.f, 5.f, -6.f});
 
     world.lights.push_back(left_light);
     world.lights.push_back(right_light);
 
-    float focal_length = 1.0;
-    float viewport_height = 2.0;
-    float viewport_width = viewport_height * (static_cast<double>(image_width) / image_height);
-    auto camera_center = Vector3df{0, 0, 0};
+    float focal_length = 5.f;
+    float viewport_height = 9.f;
+    float viewport_width = viewport_height * (image_width/image_height);
+    Vector3df camera_center = {0.f,0.f,0.f};
 
-    auto viewport_u = Vector3df{viewport_width, 0, 0};
-    auto viewport_v = Vector3df{0, -viewport_height, 0};
+    // Calculate the vectors across the horizontal and down the vertical viewport edges.
+    Vector3df viewport_u = Vector3df{viewport_width, 0.f, 0.f};
+    Vector3df viewport_v = Vector3df{0.f, -viewport_height, 0.f};
 
-    auto pixel_delta_u = (1.f / image_width) * viewport_u;
-    auto pixel_delta_v = (1.f / image_height) * viewport_v;
+    // Calculate the horizontal and vertical delta vectors from pixel to pixel.
+    Vector3df pixel_delta_u = (1.f/image_width) * viewport_u;
+    Vector3df pixel_delta_v = (1.f/image_height) * viewport_v;
 
-    auto viewport_upper_left = camera_center + (Vector3df{0, 0, -focal_length})
-                               - 0.5f * viewport_u - 0.5f * viewport_v;
-    auto pixel00_loc = viewport_upper_left + 0.5f * (pixel_delta_u + pixel_delta_v);
+    Vector3df viewport_upper_left = camera_center - Vector3df{0.f, 0.f, focal_length} - ((1/2.f) * viewport_u ) - ((1/2.f) * viewport_v);
+    Vector3df pixel00_loc = viewport_upper_left + (0.5f * (pixel_delta_u + pixel_delta_v));
+
     //Render
     std::cout << "P3\n" << image_width << ' ' << image_height << "\n255\n";
     for (int j = 0; j < image_height; ++j) {
